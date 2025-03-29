@@ -1,0 +1,31 @@
+
+# LÖVE specific
+*.love
+build/
+dist/
+
+# Lua / Luarocks
+*.luarock
+_VERSION
+_MANIFEST
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*~
+*.bak
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE specific
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Dependencies (if managed separately)
+# vendor/
+# deps/
