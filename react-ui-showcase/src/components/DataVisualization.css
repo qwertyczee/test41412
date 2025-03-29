@@ -1,0 +1,72 @@
+
+.data-visualization-container {
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+  overflow: hidden; /* Ensure SVG doesn't overflow */
+}
+
+.data-visualization-container h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+  color: #333;
+}
+
+.data-viz-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px; /* Default height */
+  color: #888;
+  background-color: #f9f9f9;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+}
+
+.data-viz-svg {
+  display: block; /* Remove extra space below SVG */
+  width: 100%;
+  height: auto; /* Maintain aspect ratio */
+  max-height: 300px; /* Limit max height */
+}
+
+/* Basic styling for SVG elements (can be enhanced) */
+.data-viz-svg rect {
+  transition: fill 0.3s ease;
+}
+
+.data-viz-svg rect:hover {
+  fill: lightsteelblue;
+}
+
+/* Styles for axes, labels, tooltips would depend on the specific SVG structure or charting library used. */
+/* Further responsive adjustments may be needed depending on chart complexity. */
+@media (max-width: 768px) {
+  .data-visualization-container {
+    padding: 15px;
+  }
+  .data-visualization-container h2 {
+    font-size: 1.1em;
+  }
+  .data-viz-svg {
+     /* Adjust SVG height or other properties for smaller screens if needed */
+  }
+}
+
+/* Styles for different chart types (line, pie, etc.) depend on the implementation. */
+
+/* Placeholder for Loading State */
+.data-visualization-container.loading .data-viz-placeholder {
+  color: #aaa;
+  /* Add spinner or other loading indicator styles */
+}
+
+/* Placeholder for Error State */
+.data-visualization-container.error .data-viz-placeholder {
+  color: #d9534f; /* Example error color */
+  border-color: #d9534f;
+}

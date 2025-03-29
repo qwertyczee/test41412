@@ -1,0 +1,66 @@
+
+/* NavigationBar.css */
+
+.navigation-bar {
+  background-color: #333; /* Dark background for contrast */
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: sans-serif;
+}
+
+.nav-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  justify-content: center; /* Center links */
+  gap: 1.5rem; /* Spacing between links */
+}
+
+.nav-links li {
+  display: inline-block;
+}
+
+.nav-links a {
+  color: #fff; /* White text */
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-links a:hover,
+.nav-links a:focus {
+  background-color: #555; /* Slightly lighter background on hover/focus */
+  color: #eee;
+  outline: 2px solid #777; /* Focus indicator for accessibility */
+  outline-offset: 2px;
+}
+
+.nav-links a[aria-current="page"] {
+  font-weight: bold;
+  color: #61dafb; /* Highlight color for the current page (React blue) */
+  border-bottom: 2px solid #61dafb; /* Add underline for active link */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navigation-bar {
+    padding: 1rem;
+  }
+
+  .nav-links {
+    flex-direction: column; /* Stack links vertically */
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .nav-links a {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Styles for dropdown menus would be added here if implemented */

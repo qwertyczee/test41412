@@ -1,0 +1,90 @@
+
+/* Card Component Styles */
+
+.card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Ensures image corners are rounded */
+  transition: box-shadow 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  max-width: 350px; /* Default max width */
+  margin: 1rem; /* Spacing around the card */
+}
+
+.card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-image {
+  width: 100%;
+  height: 200px; /* Fixed height for consistency */
+  object-fit: cover; /* Scale image nicely */
+}
+
+.card-content {
+  padding: 1rem;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.card-text {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.card-actions {
+  padding: 0 1rem 1rem; /* Padding for actions */
+  margin-top: auto; /* Pushes actions to the bottom */
+  border-top: 1px solid #eee; /* Optional separator */
+  padding-top: 1rem;
+  display: flex;
+  gap: 0.5rem; /* Spacing between action items */
+}
+
+/* Responsive styles for smaller screens */
+@media (max-width: 768px) {
+  .card {
+    max-width: 90%; /* Adjust width for smaller screens */
+    margin: 1rem auto; /* Center card on smaller screens */
+  }
+}
+
+/* Styles for action elements (e.g., buttons) within .card-actions */
+/* These styles provide basic button appearance. Consider using the Button component for consistency. */
+.card-actions button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.card-actions button.primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.card-actions button.primary:hover {
+  background-color: #0056b3;
+}
+
+.card-actions button.secondary {
+  background-color: #f8f9fa;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.card-actions button.secondary:hover {
+  background-color: #e2e6ea;
+}
