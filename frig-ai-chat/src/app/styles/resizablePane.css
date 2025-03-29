@@ -1,0 +1,53 @@
+
+/* Basic Resizer Styles from react-split-pane documentation */
+/* These styles are imported in layout.tsx */
+/* Customize appearance to match application theme here */
+
+.Resizer {
+  background: #4f4f4f; /* Darker gray for visibility */
+  opacity: 1; /* Make it fully opaque */
+  z-index: 10; /* Ensure it's above content */
+  box-sizing: border-box;
+  background-clip: padding-box;
+  transition: all 0.1s ease; /* Faster transition */
+}
+
+.Resizer:hover {
+  background: #6db5ff; /* Highlight color on hover */
+}
+
+.Resizer.horizontal {
+  height: 11px;
+  margin: -5px 0;
+  border-top: 5px solid rgba(0, 0, 0, 0); /* Transparent borders for grab area */
+  border-bottom: 5px solid rgba(0, 0, 0, 0);
+  cursor: row-resize;
+  width: 100%;
+}
+
+.Resizer.horizontal:hover {
+  border-color: rgba(0, 0, 0, 0.3); /* Slightly visible border on hover */
+}
+
+.Resizer.vertical {
+  width: 11px;
+  margin: 0 -5px;
+  border-left: 5px solid rgba(0, 0, 0, 0); /* Transparent borders for grab area */
+  border-right: 5px solid rgba(0, 0, 0, 0);
+  cursor: col-resize;
+  height: 100%; /* Ensure vertical resizer spans full height */
+}
+
+.Resizer.vertical:hover {
+   border-color: rgba(0, 0, 0, 0.3); /* Slightly visible border on hover */
+}
+
+.Resizer.disabled {
+  cursor: not-allowed;
+  background: #333; /* Different color when disabled */
+}
+
+.Resizer.disabled:hover {
+  border-color: transparent;
+  background: #333; /* No hover effect when disabled */
+}
