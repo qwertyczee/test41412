@@ -1,76 +1,114 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { useSwipeable } from 'react-swipeable';
+import PropTypes from 'prop-types';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 
-/**
- * Accordion Component
- *
- * Displays a list of items where each item can be individually expanded or collapsed
- * to reveal its content. Uses Tailwind CSS for styling and includes ARIA attributes
- * for accessibility. Includes basic height and opacity transitions.
- *
- * @param {Object[]} items - Array of items to display in the accordion.
- *   Each item object should have:
- *   - {string} id - A unique identifier for the item.
- *   - {string} title - The header text for the accordion section.
- *   - {React.ReactNode} content - The content to display when the section is expanded.
- */
-function Accordion({ items = [] }) {
-  const [openSectionId, setOpenSectionId] = useState(null);
+const Accordion = ({ items }) => {
+  const [activeIndex, setActiveIndex] = useState(null);
+  const accordionRef = useRef(null);
 
-  const toggleSection = (id) => {
-    setOpenSectionId(openSectionId === id ? null : id);
+  // Swipe handlers for touch devices
+  const swipeHandlers = useSwipeable({
+    onSwipedUp: () => handleNext(),
+    onSwipedDown: () => handlePrev(),
+    trackMouse: true
+  });
+
+  const handleNext = () => {
+    if (activeIndex === null || activeIndex >= items.length - 1) {
+      setActiveIndex(0);
+    } else {
+      setActiveIndex(activeIndex + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (activeIndex === null || activeIndex <= 0) {
+      setActiveIndex(items.length - 1);
+    } else {
+      setActiveIndex(activeIndex - 1);
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    switch(e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        handleNext();
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        handlePrev();
+        break;
+      case 'Home':
+        e.preventDefault();
+        setActiveIndex(0);
+        break;
+      case 'End':
+        e.preventDefault();
+        setActiveIndex(items.length - 1);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const toggleItem = (index) => {
+    setActiveIndex(activeIndex === index ? null : index);
   };
 
   return (
-    <div className="border border-gray-200 rounded-md divide-y divide-gray-200">
-      {items.map((item, index) => {
-        // Ensure item has a unique ID, fallback if necessary (though providing unique IDs is best practice)
-        const itemId = item.id || `accordion-item-${index}`;
-        const isOpen = openSectionId === itemId;
-        const headerId = `${itemId}-header`;
-        const panelId = `${itemId}-panel`;
-
-        return (
-          <div key={itemId}>
-            <h2>
-              <button
-                type="button"
-                id={headerId}
-                aria-expanded={isOpen}
-                aria-controls={panelId}
-                onClick={() => toggleSection(itemId)}
-                className="flex justify-between items-center w-full p-4 text-left text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-              >
-                <span>{item.title}</span>
-                <span className={`transform transition-transform duration-200 ease-in-out ${isOpen ? 'rotate-180' : 'rotate-0'}`}>
-                  {/* Basic Chevron Down Icon */}
-                  <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </span>
-              </button>
-            </h2>
-            <div
-              id={panelId}
-              role="region"
-              aria-labelledby={headerId}
-              className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`} // Added opacity for fade effect
-              style={{
-                // Basic height and opacity transitions are applied via Tailwind classes.
-                // For more advanced animations (e.g., libraries like framer-motion), further customization is needed.
-              }}
-            >
-              {/* Added padding and border directly here */}
-              <div className={`p-4 border-t border-gray-200 text-gray-600`}>
-                 {item.content}
-              </div>
+    <div 
+      className="w-full max-w-md mx-auto"
+      {...swipeHandlers}
+      ref={accordionRef}
+      role="region"
+      aria-label="Accordion controls"
+    >
+      {items.map((item, index) => (
+        <div 
+          key={index}
+          className="border-b border-gray-200"
+        >
+          <button
+            className="flex justify-between items-center w-full p-4 text-left hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            onClick={() => toggleItem(index)}
+            onKeyDown={(e) => handleKeyDown(e, index)}
+            aria-expanded={activeIndex === index}
+            aria-controls={`accordion-content-${index}`}
+            id={`accordion-header-${index}`}
+          >
+            <span className="font-medium text-gray-900">{item.title}</span>
+            {activeIndex === index ? (
+              <ChevronUpIcon className="h-5 w-5 text-gray-500" />
+            ) : (
+              <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+            )}
+          </button>
+          <div
+            id={`accordion-content-${index}`}
+            role="region"
+            aria-labelledby={`accordion-header-${index}`}
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${activeIndex === index ? 'max-h-screen' : 'max-h-0'}`}
+          >
+            <div className="p-4 text-gray-600">
+              {item.content}
             </div>
           </div>
-        );
-      })}
-      {items.length === 0 && <p className="p-4 text-gray-500">No items to display.</p>}
+        </div>
+      ))}
     </div>
   );
-}
+};
+
+Accordion.propTypes = {
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      content: PropTypes.node.isRequired
+    })
+  ).isRequired
+};
 
 export default Accordion;

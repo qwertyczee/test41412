@@ -1,66 +1,72 @@
 
 import React, { useState } from 'react';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 
-/**
- * NavigationBar Component
- *
- * A responsive navigation bar with a mobile menu toggle.
- * Uses Tailwind CSS for styling.
- *
- * Customize color schemes or spacing below.
- * Primary background: bg-gray-800
- * Text color: text-gray-300
- * Hover text color: hover:text-white
- * Mobile menu background: bg-gray-700
- */
 const NavigationBar = () => {
   const [isOpen, setIsOpen] = useState(false);
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
+  const navItems = [
+    { name: 'Home', href: '#' },
+    { name: 'About', href: '#' },
+    { name: 'Services', href: '#' },
+    { name: 'Contact', href: '#' }
+  ];
 
   return (
-    <nav className="bg-gray-800 p-4">
-      <div className="container mx-auto flex justify-between items-center">
-        <div className="text-white text-lg font-bold">
-          UI Library
-        </div>
-        {/* Mobile Menu Button */}
-        <div className="md:hidden">
-          {/* Hamburger/Close Icon Button */}
-          <button
-            onClick={toggleMenu}
-            className="text-gray-300 hover:text-white focus:outline-none focus:text-white"
-            aria-label={isOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={isOpen}
-          >
-            <svg className="h-6 w-6 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <nav className="bg-white shadow-sm" aria-label="Main navigation">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          {/* Logo/Brand */}
+          <div className="flex items-center">
+            <a href="#" className="text-lg font-semibold text-gray-900">
+              Company Logo
+            </a>
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium"
+                aria-current={item.current ? 'page' : undefined}
+              >
+                {item.name}
+              </a>
+            ))}
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              aria-expanded={isOpen}
+              aria-label={isOpen ? 'Close menu' : 'Open menu'}
+            >
               {isOpen ? (
-                // Close (X) icon path
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                <XMarkIcon className="block h-6 w-6" />
               ) : (
-                // Hamburger icon path
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                <Bars3Icon className="block h-6 w-6" />
               )}
-            </svg>
-          </button>
-        </div>
-        {/* Desktop Menu */}
-        <div className="hidden md:flex space-x-4">
-          <a href="#home" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</a>
-          <a href="#components" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Components</a>
-          <a href="#about" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">About</a>
-          <a href="#contact" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Contact</a>
+            </button>
+          </div>
         </div>
       </div>
-      {/* Mobile Menu */}
-      <div className={`${isOpen ? 'block' : 'hidden'} md:hidden`}>
-        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-700 rounded-md mt-2">
-           <a href="#home" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Home</a>
-           <a href="#components" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Components</a>
-           <a href="#about" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">About</a>
-           <a href="#contact" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Contact</a>
+
+      {/* Mobile menu dropdown */}
+      <div className={`md:hidden ${isOpen ? 'block' : 'hidden'}`}>
+        <div className="pt-2 pb-3 space-y-1">
+          {navItems.map((item) => (
+            <a
+              key={item.name}
+              href={item.href}
+              className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50"
+              aria-current={item.current ? 'page' : undefined}
+            >
+              {item.name}
+            </a>
+          ))}
         </div>
       </div>
     </nav>

@@ -1,17 +1,14 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Add base styles for smooth scrolling and offset for fixed header */
-html {
-  scroll-behavior: smooth;
-  /* Adjust scroll-padding-top to match your fixed header height */
-  /* Example: If header is 64px tall */
-   scroll-padding-top: 70px; /* Adjust as needed */
+/* Custom base styles */
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
 }
-
-/* Optional: Style for the active section link (if using JS later) */
-/* .section-nav a.active {
-  font-weight: bold;
-  color: #your-active-color;
-} */

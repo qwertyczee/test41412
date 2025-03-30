@@ -1,53 +1,53 @@
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
-/**
- * Card component for displaying content in a visually appealing box.
- * Accepts props for image, title, content, children, and theme.
- * @param {object} props - The component props.
- * @param {string} [props.image] - URL for the optional image at the top of the card.
- * @param {string} [props.title] - Optional title for the card.
- * @param {string} [props.content] - Optional text content for the card.
- * @param {React.ReactNode} [props.children] - Allows passing custom elements as content.
- * @param {'default' | 'primary' | 'secondary'} [props.theme] - Visual theme for the card. Defaults to 'default'.
- * @param {string} [props.className] - Additional CSS classes for the card container.
- */
-function Card({ image, title, content, children, theme = 'default', className = '' }) {
-
-  let themeStyles = '';
-  switch (theme) {
-    case 'primary':
-      // Example: Add a colored top border
-      themeStyles = 'border-t-4 border-blue-500';
-      break;
-    case 'secondary':
-      // Example: Add a subtle background change
-      themeStyles = 'bg-gray-50';
-      break;
-    case 'default':
-    default:
-      themeStyles = 'bg-white'; // Default background
-      break;
-  }
-
+const Card = ({ 
+  title, 
+  description, 
+  imageUrl, 
+  onClick, 
+  className = '',
+  hoverEffect = true
+}) => {
   return (
-    // Added themeStyles and className prop
-    <div className={`${themeStyles} rounded-lg shadow-md overflow-hidden m-4 ${className}`}>
-      {image && (
-        <img className="w-full h-48 object-cover" src={image} alt={title || 'Card image'} />
+    <div 
+      className={`
+        bg-white rounded-lg shadow-md overflow-hidden
+        ${hoverEffect ? 'transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg' : ''}
+        ${onClick ? 'cursor-pointer' : ''}
+        ${className}
+      `}
+      onClick={onClick}
+      role={onClick ? 'button' : 'article'}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
+    >
+      {imageUrl && (
+        <img 
+          src={imageUrl} 
+          alt={title} 
+          className="w-full h-48 object-cover"
+          loading="lazy"
+        />
       )}
-      <div className="p-6">
-        {title && (
-          <h3 className="text-xl font-semibold mb-2">{title}</h3>
+      <div className="p-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+        {description && (
+          <p className="text-gray-600">{description}</p>
         )}
-        {content && (
-          <p className="text-gray-700">{content}</p>
-        )}
-        {children && <div>{children}</div>} {/* Render children if provided */}
-        {/* Theme customization added */}
       </div>
     </div>
   );
-}
+};
+
+Card.propTypes = {
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  imageUrl: PropTypes.string,
+  onClick: PropTypes.func,
+  className: PropTypes.string,
+  hoverEffect: PropTypes.bool
+};
 
 export default Card;

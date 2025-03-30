@@ -1,149 +1,110 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 
-/**
- * ModalDialog Component
- *
- * Renders a modal dialog that can be toggled.
- * Includes accessibility features like focus trapping and ARIA attributes.
- *
- * @param {object} props - Component props
- * @param {boolean} props.isOpen - Controls the visibility of the modal
- * @param {function} props.onClose - Callback function to close the modal
- * @param {string} [props.title] - Optional title for the modal header
- * @param {React.ReactNode} props.children - Content to be displayed inside the modal
- */
-function ModalDialog({ isOpen, onClose, title, children }) {
-  // Modal with transitions, focus trapping, and accessibility features.
-  const [isMounted, setIsMounted] = useState(false);
-  const [isVisible, setIsVisible] = useState(false); // Controls opacity/transform for transition
+const ModalDialog = ({ title, children, onClose }) => {
+  const [isOpen, setIsOpen] = useState(true);
   const modalRef = useRef(null);
-  const previousFocusRef = useRef(null);
 
+  // Close modal when clicking backdrop or pressing Escape
   useEffect(() => {
-    if (isOpen) {
-        if (!isMounted) previousFocusRef.current = document.activeElement; // Store focus only on first mount when opening
-        setIsMounted(true);
-        requestAnimationFrame(() => setIsVisible(true)); // Apply visible styles after mount
-    } else {
-        setIsVisible(false); // Start fade out
-        const timer = setTimeout(() => {
-            setIsMounted(false); // Unmount after transition
-            if (previousFocusRef.current) {
-                previousFocusRef.current.focus(); // Restore focus
-                previousFocusRef.current = null;
-            }
-        }, 300); // Match transition duration
-        return () => clearTimeout(timer);
-    }
-  }, [isOpen, isMounted]); // isMounted dependency ensures focus is stored correctly
-
-
-  // Handle closing the modal (called by button click or Escape key)
-  const handleClose = () => {
-    if (onClose) {
-      onClose(); // Trigger the state change in the parent via isOpen prop
-    }
-  };
-
-  // Handle Escape key press
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape' && isOpen) { // Only close if open
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
         handleClose();
       }
     };
+
+    const handleClickOutside = (e) => {
+      if (modalRef.current && !modalRef.current.contains(e.target)) {
+        handleClose();
+      }
+    };
+
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]); // Re-run if isOpen changes or onClose handler changes
+    document.addEventListener('mousedown', handleClickOutside);
 
-
-  // Focus Trapping Logic
-  useEffect(() => {
-    if (isVisible && modalRef.current) { // Trap focus only when fully visible
-      const focusableElements = modalRef.current.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-      if (focusableElements.length === 0) return;
-
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-
-      // Focus the first element when modal becomes visible
-       if(isOpen) firstElement.focus(); // Focus only when intended to be open
-
-      const handleTabKeyPress = (event) => {
-        if (event.key === 'Tab') {
-          if (event.shiftKey) { // Shift + Tab
-            if (document.activeElement === firstElement) {
-              lastElement.focus();
-              event.preventDefault();
-            }
-          } else { // Tab
-            if (document.activeElement === lastElement) {
-              firstElement.focus();
-              event.preventDefault();
-            }
-          }
-        }
-      };
-
-      const currentModalRef = modalRef.current; // Capture ref value
-      currentModalRef.addEventListener('keydown', handleTabKeyPress);
-      return () => {
-        currentModalRef?.removeEventListener('keydown', handleTabKeyPress);
-      };
+    // Focus trap - set focus to modal when opened
+    if (isOpen && modalRef.current) {
+      modalRef.current.focus();
     }
-  }, [isVisible, isOpen]); // Depend on isVisible and isOpen
 
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
-  if (!isMounted) {
-    return null; // Don't render anything if not mounted
-  }
+  const handleClose = () => {
+    setIsOpen(false);
+    if (onClose) onClose();
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black transition-opacity duration-300 ease-in-out ${isVisible ? 'bg-opacity-50' : 'bg-opacity-0 pointer-events-none'}`} // Added pointer-events-none
+    <div 
+      className="fixed inset-0 z-50 overflow-y-auto"
       role="dialog"
       aria-modal="true"
-      aria-labelledby={title ? 'modal-title' : undefined}
-      aria-describedby="modal-content-desc" // aria-describedby added
+      aria-labelledby="modal-title"
     >
-      {/* Transition effects added */}
-      <div
-        ref={modalRef}
-        className={`relative w-full max-w-lg p-6 bg-white rounded-lg shadow-xl transition-all duration-300 ease-in-out transform ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-      >
-        {/* Modal Header */}
-        {title && (
-          <h2 id="modal-title" className="text-xl font-semibold mb-4">{title}</h2>
-        )}
-
-        {/* Close Button */}
-        <button
-          onClick={handleClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500"
-          aria-label="Close dialog"
+      <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        {/* Backdrop */}
+        <div 
+          className="fixed inset-0 transition-opacity" 
+          aria-hidden="true"
         >
-           {/* Using SVG for better alignment and scaling */}
-           <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-           </svg>
-        </button>
-
-        {/* Modal Content */}
-        <div id="modal-content-desc" className="modal-content pt-2 pb-4"> {/* Added some padding */}
-          {children}
+          <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
         </div>
 
-        {/* Optional Modal Footer (Example) - Render children passed for footer is more flexible */}
-        {/* <div className="mt-6 flex justify-end space-x-2"> */}
-        {/*   <button onClick={handleClose} className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button> */}
-        {/*   <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Confirm</button> */}
-        {/* </div> */}
+        {/* Modal container */}
+        <span 
+          className="hidden sm:inline-block sm:align-middle sm:h-screen" 
+          aria-hidden="true"
+        >
+          ​
+        </span>
+
+        {/* Modal content */}
+        <div
+          ref={modalRef}
+          className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+          tabIndex="-1"
+        >
+          <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div className="sm:flex sm:items-start">
+              <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                <h3 
+                  className="text-lg leading-6 font-medium text-gray-900" 
+                  id="modal-title"
+                >
+                  {title}
+                </h3>
+                <div className="mt-2">
+                  {children}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button
+              type="button"
+              onClick={handleClose}
+              className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+            >
+              Close
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+ModalDialog.propTypes = {
+  title: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+  onClose: PropTypes.func
+};
 
 export default ModalDialog;

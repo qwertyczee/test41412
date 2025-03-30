@@ -1,96 +1,116 @@
 
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { 
+  CheckCircleIcon, 
+  ExclamationCircleIcon,
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+  XMarkIcon 
+} from '@heroicons/react/24/outline';
 
-/**
- * Notification Component
- * Displays alerts, warnings, or info messages with optional auto-dismiss and animations.
- *
- * @param {string} type - The type of notification (e.g., 'success', 'error', 'warning', 'info'). Determines styling.
- * @param {string} message - The text content of the notification.
- * @param {function} [dismiss] - Optional function to call when the notification is dismissed (e.g., clicking a close button).
- * @param {number} [autoDismissDuration] - Optional duration in milliseconds after which the notification automatically dismisses.
- */
-const Notification = ({ type = 'info', message, dismiss, autoDismissDuration }) => {
-  const baseStyle = "p-4 rounded-md shadow-lg flex justify-between items-center transition-all duration-300 ease-in-out"; // Added transition
-  let typeStyle = '';
-  const [isVisible, setIsVisible] = useState(false); // Start invisible for fade-in
-  const [isDismissed, setIsDismissed] = useState(false); // Controls final removal
+const Notification = ({ 
+  message, 
+  type = 'info',
+  duration = 5000,
+  onDismiss,
+  dismissible = true
+}) => {
+  const [isVisible, setIsVisible] = useState(true);
+  const timerRef = useRef();
 
-  // Handle programmatic dismiss (e.g., auto-dismiss or button click)
-  const handleDismiss = () => {
-    setIsVisible(false); // Start fade-out/transform
-    // Allow time for animation before calling external dismiss function and unmounting
-    setTimeout(() => {
-       setIsDismissed(true); // Mark as dismissed to stop rendering
-      if (dismiss) {
-        dismiss(); // Call external callback if provided
-      }
-    }, 300); // Match transition duration
+  const typeConfig = {
+    success: {
+      icon: CheckCircleIcon,
+      bgColor: 'bg-green-50',
+      textColor: 'text-green-800',
+      iconColor: 'text-green-400'
+    },
+    error: {
+      icon: ExclamationCircleIcon,
+      bgColor: 'bg-red-50',
+      textColor: 'text-red-800',
+      iconColor: 'text-red-400'
+    },
+    warning: {
+      icon: ExclamationTriangleIcon,
+      bgColor: 'bg-yellow-50',
+      textColor: 'text-yellow-800',
+      iconColor: 'text-yellow-400'
+    },
+    info: {
+      icon: InformationCircleIcon,
+      bgColor: 'bg-blue-50',
+      textColor: 'text-blue-800',
+      iconColor: 'text-blue-400'
+    }
   };
 
-  // Auto-dismiss effect
+  const { icon: Icon, bgColor, textColor, iconColor } = typeConfig[type];
+
   useEffect(() => {
-    let timer;
-    if (autoDismissDuration && autoDismissDuration > 0) {
-      timer = setTimeout(() => {
+    if (duration > 0) {
+      timerRef.current = setTimeout(() => {
         handleDismiss();
-      }, autoDismissDuration);
+      }, duration);
     }
-    // Clear timer on component unmount or if dismiss is called manually
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoDismissDuration]); // Rerun only if duration changes
 
-   // Effect to fade in the notification on mount
-   useEffect(() => {
-      // Trigger fade-in shortly after mount
-      const timer = setTimeout(() => {
-          setIsVisible(true);
-      }, 50); // Small delay to ensure transition occurs
-      return () => clearTimeout(timer);
-   }, []); // Run only on mount
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, [duration]);
 
-  if (isDismissed) {
-     return null; // Don't render if fully dismissed
-  }
+  const handleDismiss = () => {
+    setIsVisible(false);
+    if (onDismiss) {
+      onDismiss();
+    }
+  };
 
-  switch (type) {
-    case 'success':
-      typeStyle = 'bg-green-100 border border-green-400 text-green-700';
-      break;
-    case 'error':
-      typeStyle = 'bg-red-100 border border-red-400 text-red-700';
-      break;
-    case 'warning':
-      typeStyle = 'bg-yellow-100 border border-yellow-400 text-yellow-700';
-      break;
-    case 'info':
-    default:
-      typeStyle = 'bg-blue-100 border border-blue-400 text-blue-700';
-      break;
-  }
+  if (!isVisible) return null;
 
   return (
-    <div
-      // Apply transition classes based on visibility state
-      className={`${baseStyle} ${typeStyle} ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'}`}
+    <div 
+      className={`rounded-md p-4 ${bgColor} mb-4`}
       role="alert"
-      aria-live="polite" // Announce changes to screen readers
-      aria-hidden={!isVisible}
+      aria-live="assertive"
     >
-      <span>{message}</span>
-      {dismiss && ( // Only show dismiss button if callback provided
-        <button
-          onClick={handleDismiss} // Use internal handler
-          className="ml-4 px-2 py-1 rounded text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-current"
-          aria-label="Dismiss notification"
-        >
-          × {/* Simple close icon */}
-        </button>
-      )}
-      {/* Auto-dismiss and animations are now implemented */}
+      <div className="flex">
+        <div className="flex-shrink-0">
+          <Icon className={`h-5 w-5 ${iconColor}`} aria-hidden="true" />
+        </div>
+        <div className="ml-3">
+          <p className={`text-sm font-medium ${textColor}`}>
+            {message}
+          </p>
+        </div>
+        {dismissible && (
+          <div className="ml-auto pl-3">
+            <div className="-mx-1.5 -my-1.5">
+              <button
+                type="button"
+                onClick={handleDismiss}
+                className={`inline-flex rounded-md ${bgColor} p-1.5 ${iconColor} hover:bg-opacity-80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${type}-500`}
+                aria-label="Dismiss"
+              >
+                <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
+};
+
+Notification.propTypes = {
+  message: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(['success', 'error', 'warning', 'info']),
+  duration: PropTypes.number,
+  onDismiss: PropTypes.func,
+  dismissible: PropTypes.bool
 };
 
 export default Notification;
