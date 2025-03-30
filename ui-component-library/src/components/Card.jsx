@@ -1,53 +1,37 @@
 
 import React from 'react';
-import PropTypes from 'prop-types';
 
-const Card = ({ 
-  title, 
-  description, 
-  imageUrl, 
-  onClick, 
-  className = '',
-  hoverEffect = true
-}) => {
+/**
+ * Card Component
+ *
+ * A reusable card component with basic styling using Tailwind CSS.
+ * Provides a container with padding, rounded corners, and shadow effects.
+ * Includes hover state for enhanced interactivity.
+ *
+ * @param {Object} props - The component props.
+ * @param {React.ReactNode} props.children - The content to be displayed inside the card.
+ * @param {string} [props.className] - Optional additional CSS classes to apply to the card container.
+ * @returns {JSX.Element} The rendered card component.
+ */
+function Card({ children, className = '' }) {
   return (
-    <div 
+    <div
       className={`
-        bg-white rounded-lg shadow-md overflow-hidden
-        ${hoverEffect ? 'transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg' : ''}
-        ${onClick ? 'cursor-pointer' : ''}
-        ${className}
+        bg-white          # Card background color
+        rounded-lg        # Rounded corners
+        shadow-md         # Default shadow effect
+        p-6               # Padding inside the card (adjust as needed, e.g., p-4)
+        transition-shadow # Smooth transition for shadow changes
+        duration-300      # Transition duration
+        ease-in-out       # Transition timing function
+        hover:shadow-lg   # Larger shadow on hover
+        ${className}      # Allows for adding custom classes
       `}
-      onClick={onClick}
-      role={onClick ? 'button' : 'article'}
-      tabIndex={onClick ? 0 : undefined}
-      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
     >
-      {imageUrl && (
-        <img 
-          src={imageUrl} 
-          alt={title} 
-          className="w-full h-48 object-cover"
-          loading="lazy"
-        />
-      )}
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-        {description && (
-          <p className="text-gray-600">{description}</p>
-        )}
-      </div>
+      {/* Content Section: Place header, body, footer, or any other content here */}
+      {children}
     </div>
   );
-};
-
-Card.propTypes = {
-  title: PropTypes.string.isRequired,
-  description: PropTypes.string,
-  imageUrl: PropTypes.string,
-  onClick: PropTypes.func,
-  className: PropTypes.string,
-  hoverEffect: PropTypes.bool
-};
+}
 
 export default Card;

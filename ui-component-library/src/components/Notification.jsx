@@ -1,116 +1,79 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // Import useCallback
 import PropTypes from 'prop-types';
-import { 
-  CheckCircleIcon, 
-  ExclamationCircleIcon,
-  ExclamationTriangleIcon,
-  InformationCircleIcon,
-  XMarkIcon 
-} from '@heroicons/react/24/outline';
 
-const Notification = ({ 
-  message, 
-  type = 'info',
-  duration = 5000,
-  onDismiss,
-  dismissible = true
-}) => {
-  const [isVisible, setIsVisible] = useState(true);
-  const timerRef = useRef();
+const Notification = ({ type = 'info', message, onClose, autoDismissDelay = null }) => {
+  const [visible, setVisible] = useState(true);
 
-  const typeConfig = {
-    success: {
-      icon: CheckCircleIcon,
-      bgColor: 'bg-green-50',
-      textColor: 'text-green-800',
-      iconColor: 'text-green-400'
-    },
-    error: {
-      icon: ExclamationCircleIcon,
-      bgColor: 'bg-red-50',
-      textColor: 'text-red-800',
-      iconColor: 'text-red-400'
-    },
-    warning: {
-      icon: ExclamationTriangleIcon,
-      bgColor: 'bg-yellow-50',
-      textColor: 'text-yellow-800',
-      iconColor: 'text-yellow-400'
-    },
-    info: {
-      icon: InformationCircleIcon,
-      bgColor: 'bg-blue-50',
-      textColor: 'text-blue-800',
-      iconColor: 'text-blue-400'
+  // Wrap handleClose in useCallback to prevent re-creating it on every render
+  const handleClose = useCallback(() => {
+    setVisible(false);
+    if (onClose) {
+      onClose();
     }
-  };
+  }, [onClose]);
 
-  const { icon: Icon, bgColor, textColor, iconColor } = typeConfig[type];
-
+  // Auto-dismiss feature
   useEffect(() => {
-    if (duration > 0) {
-      timerRef.current = setTimeout(() => {
-        handleDismiss();
-      }, duration);
+    let timer;
+    if (visible && autoDismissDelay && typeof autoDismissDelay === 'number' && autoDismissDelay > 0) {
+      timer = setTimeout(() => {
+        handleClose();
+      }, autoDismissDelay);
     }
+    // Cleanup timer on component unmount or if visibility/delay changes
+    return () => clearTimeout(timer);
+  }, [visible, autoDismissDelay, handleClose]); // Add handleClose to dependency array
 
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, [duration]);
+  if (!visible) {
+    return null;
+  }
 
-  const handleDismiss = () => {
-    setIsVisible(false);
-    if (onDismiss) {
-      onDismiss();
-    }
-  };
+  // Define base styles
+  const baseStyles = "fixed top-5 right-5 p-4 rounded-lg shadow-lg flex items-center justify-between max-w-sm z-50";
 
-  if (!isVisible) return null;
+  // Define styles based on notification type
+  let typeStyles = '';
+  switch (type) {
+    case 'success':
+      typeStyles = 'bg-green-100 border border-green-400 text-green-700';
+      break;
+    case 'error':
+      typeStyles = 'bg-red-100 border border-red-400 text-red-700';
+      break;
+    case 'warning':
+      typeStyles = 'bg-yellow-100 border border-yellow-400 text-yellow-700';
+      break;
+    case 'info':
+    default:
+      typeStyles = 'bg-blue-100 border border-blue-400 text-blue-700';
+      break;
+  }
 
   return (
-    <div 
-      className={`rounded-md p-4 ${bgColor} mb-4`}
+    <div
       role="alert"
       aria-live="assertive"
+      aria-atomic="true"
+      className={`${baseStyles} ${typeStyles}`}
     >
-      <div className="flex">
-        <div className="flex-shrink-0">
-          <Icon className={`h-5 w-5 ${iconColor}`} aria-hidden="true" />
-        </div>
-        <div className="ml-3">
-          <p className={`text-sm font-medium ${textColor}`}>
-            {message}
-          </p>
-        </div>
-        {dismissible && (
-          <div className="ml-auto pl-3">
-            <div className="-mx-1.5 -my-1.5">
-              <button
-                type="button"
-                onClick={handleDismiss}
-                className={`inline-flex rounded-md ${bgColor} p-1.5 ${iconColor} hover:bg-opacity-80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${type}-500`}
-                aria-label="Dismiss"
-              >
-                <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+      <span>{message}</span>
+      <button
+        onClick={handleClose}
+        aria-label="Close notification"
+        className="ml-4 text-xl font-semibold leading-none hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-current"
+      >
+        × {/* HTML entity for 'x' symbol */}
+      </button>
     </div>
   );
 };
 
 Notification.propTypes = {
-  message: PropTypes.string.isRequired,
   type: PropTypes.oneOf(['success', 'error', 'warning', 'info']),
-  duration: PropTypes.number,
-  onDismiss: PropTypes.func,
-  dismissible: PropTypes.bool
+  message: PropTypes.string.isRequired,
+  onClose: PropTypes.func,
+  autoDismissDelay: PropTypes.number, // Delay in milliseconds, null or 0 to disable
 };
 
 export default Notification;

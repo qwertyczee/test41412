@@ -1,69 +1,37 @@
 
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 
-const DashboardWidget = ({ title, fetchUrl, pollingInterval = 10000 }) => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch(fetchUrl);
-      if (!response.ok) throw new Error('Network response was not ok');
-      const jsonData = await response.json();
-      setData(jsonData);
-      setError(null);
-    } catch (err) {
-      setError(err.message);
-      console.error('Failed to fetch data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    // Initial fetch
-    fetchData();
-    
-    // Set up polling if interval provided
-    let intervalId;
-    if (pollingInterval > 0) {
-      intervalId = setInterval(fetchData, pollingInterval);
-    }
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [fetchUrl, pollingInterval]);
-
+/**
+ * A reusable dashboard widget component.
+ *
+ * @param {object} props - The component props.
+ * @param {string} props.title - The title of the widget.
+ * @param {string|number} props.value - The main metric or data point to display.
+ * @param {React.ReactNode} [props.icon] - An optional icon element.
+ * @param {React.ReactNode} [props.children] - Optional children for more complex content.
+ */
+function DashboardWidget({ title, value, icon, children }) {
   return (
-    <div className="bg-white rounded-lg shadow p-4">
-      {title && <h3 className="text-lg font-semibold mb-2">{title}</h3>}
-      {loading ? (
-        <div className="flex justify-center items-center h-20">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+    <div className="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 transition-shadow duration-200 hover:shadow-lg">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex-shrink-0">
+          {icon && (
+            <span className="text-2xl sm:text-3xl leading-none font-bold text-gray-900 mr-2">{icon}</span>
+          )}
+          <h3 className="text-base font-normal text-gray-500">{title}</h3>
+          <span className="text-2xl sm:text-3xl leading-none font-bold text-gray-900">{value}</span>
         </div>
-      ) : error ? (
-        <div className="text-red-500 text-sm">{error}</div>
-      ) : (
-        <div className="grid grid-cols-2 gap-4">
-          {Object.entries(data).map(([key, value]) => (
-            <div key={key} className="space-y-1">
-              <div className="text-sm font-medium text-gray-500">{key}</div>
-              <div className="text-xl font-semibold">{value}</div>
-            </div>
-          ))}
+        {/* Optional actions/links can be added here if needed */}
+      </div>
+      {children && (
+        <div className="mt-4">
+          {/* Child layout can be enhanced here */}
+          {children}
         </div>
       )}
+       {/* Future enhancements: Consider adding loading and error state handling */}
     </div>
   );
-};
-
-DashboardWidget.propTypes = {
-  title: PropTypes.string,
-  fetchUrl: PropTypes.string.isRequired,
-  pollingInterval: PropTypes.number
-};
+}
 
 export default DashboardWidget;

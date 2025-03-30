@@ -1,70 +1,110 @@
 
-import React, { useState } from 'react';
-import { useSwipeable } from 'react-swipeable';
+import React from 'react';
+import Slider from 'react-slick';
+
+// Import slick-carousel css files
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const SliderCarousel = ({ items = [] }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const settings = {
+    dots: true, // Show dot indicators
+    infinite: true, // Loop slides
+    speed: 500, // Transition speed in ms
+    slidesToShow: 1, // Show one slide at a time
+    slidesToScroll: 1, // Scroll one slide at a time
+    autoplay: true, // Automatically advance slides
+    autoplaySpeed: 3000, // Delay between auto scrolls (ms)
+    pauseOnHover: true, // Pause autoplay on hover
+    fade: true, // Enable fade transition
+    // Make it responsive
+    responsive: [
+      {
+        breakpoint: 1024, // Large screens
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          infinite: true,
+          dots: true
+        }
+      },
+      {
+        breakpoint: 600, // Medium screens (tablets)
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          initialSlide: 1 // Start on the first slide
+        }
+      },
+      {
+        breakpoint: 480, // Small screens (mobiles)
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          dots: false // Hide dots on very small screens
+        }
+      }
+    ],
+    // Use custom arrows
+    nextArrow: <SampleNextArrow />,
+    prevArrow: <SamplePrevArrow />
+  };
 
-  const goToPrev = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === 0 ? items.length - 1 : prevIndex - 1
+  // Custom Arrow Components with Tailwind
+  function SampleNextArrow(props) {
+    const { className, style, onClick } = props;
+    // Remove !important overrides from default slick styles if present
+    const cleanClassName = className?.replace('slick-arrow', '');
+    return (
+      <button
+        className={`${cleanClassName} absolute top-1/2 -translate-y-1/2 right-0 z-10 flex items-center justify-center w-10 h-10 bg-black bg-opacity-40 rounded-full text-white hover:bg-opacity-60 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800`}
+        style={{ ...style, right: '10px' }} // Adjust position if needed
+        onClick={onClick}
+        aria-label="Next slide"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
     );
-  };
+  }
 
-  const goToNext = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === items.length - 1 ? 0 : prevIndex + 1
+  function SamplePrevArrow(props) {
+    const { className, style, onClick } = props;
+        // Remove !important overrides from default slick styles if present
+    const cleanClassName = className?.replace('slick-arrow', '');
+    return (
+      <button
+        className={`${cleanClassName} absolute top-1/2 -translate-y-1/2 left-0 z-10 flex items-center justify-center w-10 h-10 bg-black bg-opacity-40 rounded-full text-white hover:bg-opacity-60 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800`}
+        style={{ ...style, left: '10px' }} // Adjust position if needed
+        onClick={onClick}
+        aria-label="Previous slide"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+      </button>
     );
-  };
+  }
 
-  // Swipe gesture support for touch devices
-  const handlers = useSwipeable({
-    onSwipedLeft: () => goToNext(),
-    onSwipedRight: () => goToPrev(),
-    trackMouse: true
-  });
 
-  // ARIA attributes for accessibility
-  const sliderProps = {
-    role: "region",
-    "aria-label": "Image carousel",
-    "aria-live": "polite",
-    ...handlers
-  };
+  if (!items || items.length === 0) {
+    return <div className="text-center p-4">No items to display in carousel.</div>;
+  }
 
   return (
-    <div className="relative w-full overflow-hidden" {...sliderProps}>
-      <div className="flex transition-transform duration-300 ease-in-out"
-           style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
+    // Ensure container has enough padding to prevent arrows overlapping content on narrow screens if needed
+    <div className="slider-container px-4 py-2 relative mx-auto max-w-full">
+      {/* Fade transition is enabled in settings. */}
+      {/* Touch/swipe support is enabled by default in react-slick. */}
+      <Slider {...settings}>
         {items.map((item, index) => (
-          <div key={index} className="w-full flex-shrink-0">
+          <div key={index} className="px-1"> {/* Adjusted padding slightly */}
+            {/* Each item should be a renderable element like an image or a div */}
             {item}
           </div>
         ))}
-      </div>
-
-      {items.length > 1 && (
-        <>
-          <button 
-            onClick={goToPrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white/80 rounded-full p-2 shadow-md transition-colors"
-            aria-label="Previous slide"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button 
-            onClick={goToNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white/80 rounded-full p-2 shadow-md transition-colors"
-            aria-label="Next slide"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </>
-      )}
+      </Slider>
     </div>
   );
 };
