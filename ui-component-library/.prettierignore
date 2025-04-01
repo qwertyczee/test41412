@@ -1,0 +1,15 @@
+# Ignore artifacts:
+node_modules
+dist
+build
+coverage
+
+# Ignore config files if needed (optional, handled by ESLint ignore usually)
+# vite.config.js
+# postcss.config.js
+# tailwind.config.js
+
+# Ignore lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

@@ -1,37 +1,83 @@
-
 import React from 'react';
+import PropTypes from 'prop-types';
+import clsx from 'clsx';
 
 /**
- * A reusable dashboard widget component.
+ * DashboardWidget Component
  *
- * @param {object} props - The component props.
- * @param {string} props.title - The title of the widget.
- * @param {string|number} props.value - The main metric or data point to display.
- * @param {React.ReactNode} [props.icon] - An optional icon element.
- * @param {React.ReactNode} [props.children] - Optional children for more complex content.
+ * A specialized card component designed to display key information or statistics
+ * prominently, often used in dashboards. Icons passed are assumed decorative unless context implies otherwise.
  */
-function DashboardWidget({ title, value, icon, children }) {
+const DashboardWidget = ({ title, value, icon, description, className }) => {
+  // Updated styling for better visual appeal and spacing
+  const baseClasses =
+    'bg-white rounded-lg shadow-lg p-5 border border-gray-100';
+  const widgetClasses = clsx(baseClasses, className);
+
   return (
-    <div className="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 transition-shadow duration-200 hover:shadow-lg">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex-shrink-0">
-          {icon && (
-            <span className="text-2xl sm:text-3xl leading-none font-bold text-gray-900 mr-2">{icon}</span>
+    <div className={widgetClasses}>
+      <div className="flex items-start justify-between space-x-4">
+        {' '}
+        {/* Use justify-between */}
+        {/* Content Section */}
+        <div className="flex-grow">
+          {title && (
+            <h3 className="text-sm font-medium text-gray-500 truncate">
+              {title}
+            </h3>
           )}
-          <h3 className="text-base font-normal text-gray-500">{title}</h3>
-          <span className="text-2xl sm:text-3xl leading-none font-bold text-gray-900">{value}</span>
+          {value && (
+            <p className="mt-1 text-3xl font-semibold text-gray-900">{value}</p>
+          )}{' '}
+          {/* Slightly larger value */}
+          {description && (
+            <p className="mt-1 text-xs text-gray-500">{description}</p>
+          )}{' '}
+          {/* Adjusted margin */}
         </div>
-        {/* Optional actions/links can be added here if needed */}
+        {/* Icon Section - styled and aligned to the right */}
+        {icon && (
+          // Added styling wrapper + aria-hidden assuming icon is purely decorative here
+          <div
+            className="flex-shrink-0 p-3 rounded-full bg-indigo-100 text-indigo-600"
+            aria-hidden="true"
+          >
+            {/* Clone the icon to ensure consistent sizing */}
+            {React.cloneElement(icon, { className: 'h-6 w-6' })}
+          </div>
+        )}
       </div>
-      {children && (
-        <div className="mt-4">
-          {/* Child layout can be enhanced here */}
-          {children}
-        </div>
-      )}
-       {/* Future enhancements: Consider adding loading and error state handling */}
     </div>
   );
-}
+};
+
+DashboardWidget.propTypes = {
+  /**
+   * The main title or label for the widget.
+   */
+  title: PropTypes.string.isRequired,
+  /**
+   * The primary value or metric to display. Can be a string, number, or other node.
+   */
+  value: PropTypes.node.isRequired,
+  /**
+   * An optional icon element (React component/SVG) to display. Assumed decorative.
+   */
+  icon: PropTypes.node,
+  /**
+   * Optional secondary information or context, like percentage change.
+   */
+  description: PropTypes.node,
+  /**
+   * Optional additional CSS classes to apply to the widget container.
+   */
+  className: PropTypes.string,
+};
+
+DashboardWidget.defaultProps = {
+  icon: null,
+  description: null,
+  className: '',
+};
 
 export default DashboardWidget;
